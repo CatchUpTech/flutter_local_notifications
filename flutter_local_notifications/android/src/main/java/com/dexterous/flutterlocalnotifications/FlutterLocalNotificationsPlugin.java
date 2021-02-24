@@ -85,6 +85,8 @@ import com.moengage.pushbase.MoEPushHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Bundle;
+
 /**
  * FlutterLocalNotificationsPlugin
  */
