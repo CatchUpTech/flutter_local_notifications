@@ -80,6 +80,11 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.view.FlutterMain;
 
+import com.moengage.pushbase.MoEPushHelper;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * FlutterLocalNotificationsPlugin
  */
@@ -164,6 +169,32 @@ public class FlutterLocalNotificationsPlugin implements MethodCallHandler, Plugi
         Intent intent = getLaunchIntent(context);
         intent.setAction(SELECT_NOTIFICATION);
         intent.putExtra(PAYLOAD, notificationDetails.payload);
+        
+        //For Moengage
+         try {
+
+            HashMap<String, String> map = new HashMap<String, String>();
+            JSONObject jObject = null;
+            jObject = new JSONObject(notificationDetails.payload);
+            Iterator<?> keys = jObject.keys();
+            Bundle bundle = new Bundle();
+            while( keys.hasNext() ){
+                String key = (String)keys.next();
+                String value = jObject.getString(key);
+                map.put(key, value);
+
+                bundle.putSerializable(key, value);
+            }
+
+            intent.putExtras(bundle);
+
+            MoEPushHelper.getInstance().logNotificationReceived(context, map);
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        
         PendingIntent pendingIntent = PendingIntent.getActivity(context, notificationDetails.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         DefaultStyleInformation defaultStyleInformation = (DefaultStyleInformation) notificationDetails.styleInformation;
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationDetails.channelId)
